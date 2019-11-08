@@ -240,7 +240,11 @@ void BuildLogFileName(void)
 	char  *pName = GetCharInfo()->Name;
 	char  *pServ = EQADDR_SERVERNAME;
 
+	#if defined(NEWCHARINFO)
+	char  *pGuild = GetGuildByID( GetCharInfo()->GuildID.GUID);
+	#else
 	char  *pGuild = GetGuildByID( GetCharInfo()->GuildID);
+	#endif
 	char  *pEQPath = gszEQPath;
 	char  *pMQPath = gszINIPath;
 
