@@ -4,16 +4,16 @@
 **
 ************************************************************************
 **
-** RaidUtils is inspired by the work Sorcier and the RaidManager macro 
-** posted in the www.macroquest2.com VIP forums. 
+** RaidUtils is inspired by the work Sorcier and the RaidManager macro
+** posted in the www.macroquest2.com VIP forums.
 **
-** Purpose: The purpose of this plugin is to make leading raids a little 
+** Purpose: The purpose of this plugin is to make leading raids a little
 ** easier by adding an "All" option dz/tasks add and remove commands.
 **
-** The secondary feature of this plugin is to take raid attendance. 
+** The secondary feature of this plugin is to take raid attendance.
 **
-** For Non-Raid leaders the option to automatically perform some related 
-** tasks such as joining chat channels or removing anon / role may be added 
+** For Non-Raid leaders the option to automatically perform some related
+** tasks such as joining chat channels or removing anon / role may be added
 ** later
 **
 ************************************************************************
@@ -30,29 +30,29 @@
 ** Configuration:
 **
 ** /raidtools help                              - Show help
-** /raidtools dump                              - Performs raid dump			
+** /raidtools dump                              - Performs raid dump
 ** /raidtools log on|off                        - Turns auto logging on/off
-** /raidtools log File <name>  (1)              
+** /raidtools log File <name>  (1)
 ** /raidtools log Times <str>   (2)
 ** /raidtools log Every <interval> (3)
-** 
+**
 ** 1: The File name will be parsed using strftime the most common parameters are
-**		%a	Abbreviated weekday name 
-**		%b	Abbreviated month name 
-**		%d 	Day of month as decimal number (01 – 31) 
-**		%H 	Hour in 24-hour format (00 – 23) 
-**		%m 	Month as decimal number (01 – 12) 
-**		%M 	Minute as decimal number (00 – 59) 
-**		%S 	Seconds as decimal number (00 – 61) 
-**		%Y 	Year with century, as decimal number 
-**		%% 	Percent sign 
-**    The name can also have the following 
+**		%a	Abbreviated weekday name
+**		%b	Abbreviated month name
+**		%d 	Day of month as decimal number (01 – 31)
+**		%H 	Hour in 24-hour format (00 – 23)
+**		%m 	Month as decimal number (01 – 12)
+**		%M 	Minute as decimal number (00 – 59)
+**		%S 	Seconds as decimal number (00 – 61)
+**		%Y 	Year with century, as decimal number
+**		%% 	Percent sign
+**    The name can also have the following
 **		%G  Guild name
 **		%V  Server name
 **      %C  Character name
 **      %P  Everquest path
-**      %Q  Macroquest path  
-**    
+**      %Q  Macroquest path
+**
 ** 2: The logTime format for exmpale Mon 20:00-23:00 | Tue 20:00-02:00 | Sun 11:00-15:00
 **									 Tue 8pm-11pm, Wed 9pm-1am
 **
@@ -121,12 +121,12 @@ int cmpList (const void * a, const void * b)
 	if (pb->Name == NULL)
 		return -1;
 	return _stricmp( ((tpLIST)a)->Name, ((tpLIST)b)->Name );
-} 
+}
 
 static char OnStr[] = "On";
 static char OffStr[] = "Off";
 
-//                            0    1     2     3      4     5    6      7    8     9    10  11  12   13   14 
+//                            0    1     2     3      4     5    6      7    8     9    10  11  12   13   14
 static char *tokenList[] = { " ","am", "pm" , "sun","mon","tue","wed","thu","fri","sat","+","-","|",",", NULL};
 
 void AddRaidTime(int startday,int starthr,int startmin,int stopday,int stophr,int stopmin)
@@ -136,7 +136,7 @@ void AddRaidTime(int startday,int starthr,int startmin,int stopday,int stophr,in
 
 	min = startday*3600 + starthr * 60 + startmin;
 	max = stopday*3600  + stophr * 60  + stopmin;
-	
+
 	while ( min <= max && LogRaidTimes < 999)
 	{
 		LogRaidTime[ LogRaidTimes++ ] = min;
@@ -157,7 +157,7 @@ void ParseRaidTimeStr(void)
 	int  day = 0;
 	int  start = 0;
 	int  stop = 0;
-	
+
 	LogRaidTimes = 0;
 
 	while (p && *p)
@@ -166,15 +166,15 @@ void ParseRaidTimeStr(void)
 	*q++ = 0;
 
 	memset(argv,0,sizeof(argv));
-	
+
 	p = szTimes;
-	
+
 	while (p && (*p == ' ' || *p == '\t')) p++;
-	
+
 	q = p;
 	day = 0;
 	n = v[0] = v[1] = v[2] = v[3] =  0 ;
-	
+
 	while (p && *p)
 	{
 		t  = -1;
@@ -187,12 +187,12 @@ void ParseRaidTimeStr(void)
 				t=i;
 			}
 		}
-		
+
 		if (t==-1 && p && *p >= '0' && *p <= '9')
 		{
 			while ( (*p >= '0' && *p <= '9') || *p==':' )
 			{
-				if (*p == ':' && n < 4) 
+				if (*p == ':' && n < 4)
 					n++;
 				else
 					v[n] = v[n] * 10 + *p - '0';
@@ -200,26 +200,26 @@ void ParseRaidTimeStr(void)
 			}
 			t = 14;
 		}
-		
+
 		if (t== 11 && n < 4)
 			n=2;
-			
-		
+
+
 		if (t!=-1)
 		{
 			p+= ln;
 
 			if (t>= 3 && t <= 9) 	// Mon-Fri
 				day = t;
-			
-			if (t== 2)				// PM 
+
+			if (t== 2)				// PM
 			{
-				if ( (n == 0 || n==1 ) && v[0] <= 12) 
+				if ( (n == 0 || n==1 ) && v[0] <= 12)
 					v[0] += 12;
 				if ( (n == 1 || n==2 ) && v[2] <= 12)
 					v[2] += 12;
 			}
-			
+
 			if (t==12 || t == 13) 	// | or ,
 			{
 				int d2 = day;
@@ -232,7 +232,7 @@ void ParseRaidTimeStr(void)
 		else
 			p++;
 	}
-}	
+}
 
 void BuildLogFileName(void)
 {
@@ -251,16 +251,16 @@ void BuildLogFileName(void)
 	char  *p = LogFileFormat;
 	char  *q = TempFileFormat;
 	char  *s = NULL;
-	
+
 	LogStartTime = time(NULL);
 	localtime_s(pTime, &LogStartTime);
-	
+
 	// First pass copy string and replace %S,%G,%C with EQ specific info
 	while (p && *p)
 	{
-		if (*p=='%') 
+		if (*p=='%')
 		{
-			switch (p[1]) 
+			switch (p[1])
 			{
 				case 'V':   p+=2; s = pServ;	break;
 				case 'G':	p+=2; s = pGuild;	break;
@@ -270,7 +270,7 @@ void BuildLogFileName(void)
 				case '%':   *q++ = *p++; 		// fall through to default
 			    default:	*q++ = *p++;		break;
 			}
-			
+
 			while (s && *s) *q++ = *s++;
 		}
 		else
@@ -279,7 +279,7 @@ void BuildLogFileName(void)
 		}
 	}
 	*q++ = NULL;
-	
+
 //	WriteChatf("LogFileName before strftime = [%s]\n",TempFileFormat);
 	strftime(LogFileName,1024,TempFileFormat,pTime);
 //	WriteChatf("LogFileName after strftime = [%s]\n",LogFileName);
@@ -328,10 +328,10 @@ void ShowHelpStatus(int ShowHelp,int ShowStatus)
 
 	if (ShowStatus) {
 		WriteChatf("MQ2RaidUtils:: Log Status");
-		WriteChatf("  /raidtools Log (on/off) = [%s].",OnOffStr(LogIsON));	
-		WriteChatf("  /raidtools Log File     = [%s]",LogFileFormat,LogFileName);	
-		WriteChatf("             Actual File  = [%s]",LogFileName);	
-		WriteChatf("  /raidtools Log Times    = [%s]",LogTimes);	
+		WriteChatf("  /raidtools Log (on/off) = [%s].",OnOffStr(LogIsON));
+		WriteChatf("  /raidtools Log File     = [%s]",LogFileFormat,LogFileName);
+		WriteChatf("             Actual File  = [%s]",LogFileName);
+		WriteChatf("  /raidtools Log Times    = [%s]",LogTimes);
 		WriteChatf("  /raidtools Log Every    = [%d] min",LogEvery);
 	}
 }
@@ -340,12 +340,12 @@ void LoadINIFile(void)
 {
 	char szTemp[256];
 	char  *pName = GetCharInfo()->Name;
-	
+
 	LogFileName[0] = 0;
 	GetPrivateProfileString(pName,"LogIsON"			,"0"		,szTemp			,256,INIFileName);		LogIsON=atoi(szTemp);
 	GetPrivateProfileString(pName,"LogEvery"		,"30"		,szTemp			,256,INIFileName);		LogEvery=atoi(szTemp);
-	GetPrivateProfileString(pName,"LogFileFormat"	,rtLogFmt	,LogFileFormat	,256,INIFileName);	
-	GetPrivateProfileString(pName,"LogTimes"		,"none"		,LogTimes		,256,INIFileName);	
+	GetPrivateProfileString(pName,"LogFileFormat"	,rtLogFmt	,LogFileFormat	,256,INIFileName);
+	GetPrivateProfileString(pName,"LogTimes"		,"none"		,LogTimes		,256,INIFileName);
 	BuildLogFileName();
 	ParseRaidTimeStr();
 	IniLoaded = TRUE;
@@ -356,7 +356,7 @@ int SaveINIFile(void)
 	char  *pName = GetCharInfo()->Name;
 	char  szTemp1[256];
 	char  szTemp2[256];
-	
+
 	sprintf_s(szTemp1,"%d",LogIsON);
 	sprintf_s(szTemp2,"%d",LogEvery);
 
@@ -364,14 +364,14 @@ int SaveINIFile(void)
 	WritePrivateProfileString(pName, "LogEvery"		, szTemp2		, INIFileName);
 	WritePrivateProfileString(pName, "LogFileFormat", LogFileFormat	, INIFileName);
 	WritePrivateProfileString(pName, "LogTimes"		, LogTimes		, INIFileName);
-	
+
 	return 1;
 }
 
 int SetLog(int on)
 {
 	LogIsON = on;
-	WriteChatf("  /raidtools Log (on/off) = [%s].",OnOffStr(LogIsON));	
+	WriteChatf("  /raidtools Log (on/off) = [%s].",OnOffStr(LogIsON));
 	return (SaveINIFile());
 }
 
@@ -379,7 +379,7 @@ int SetLogEvery(char *s)
 {
 	int t;
 	if (!s) return 0;
-	
+
 	t = atoi(s);
 	if (t >= 1 && t<=60)
 	{
@@ -389,14 +389,14 @@ int SetLogEvery(char *s)
 		return (SaveINIFile());
 	}
 	return 0;
-}		
-	
+}
+
 int SetTimes(char *s)
 {
 	if (!s) return 0;
 	strcpy_s(LogTimes,s);
 	ParseRaidTimeStr();
-	WriteChatf("  /raidtools Log Times    = [%s]",LogTimes);	
+	WriteChatf("  /raidtools Log Times    = [%s]",LogTimes);
 	return (SaveINIFile());
 }
 
@@ -405,14 +405,14 @@ int SetFileName(char *s)
 	if (!s) return 0;
 	strcpy_s(LogFileFormat,s);
 	BuildLogFileName();
-	WriteChatf("  /raidtools Log File     = [%s]",LogFileFormat,LogFileName);	
-	WriteChatf("             Actual File  = [%s]",LogFileName);	
+	WriteChatf("  /raidtools Log File     = [%s]",LogFileFormat,LogFileName);
+	WriteChatf("             Actual File  = [%s]",LogFileName);
 	return (SaveINIFile());
 }
 
 void DoRaidDump(void);
 
-void rtCommand(PSPAWNINFO pCHAR, PCHAR zLine) 
+void rtCommand(PSPAWNINFO pCHAR, PCHAR zLine)
 {
 	int  OK = 0;
 	int  ShowHelp = 0;
@@ -422,13 +422,13 @@ void rtCommand(PSPAWNINFO pCHAR, PCHAR zLine)
 	char Arg2[MAX_STRING]; GetArg(Arg2,zLine,2);
 	char Arg3[MAX_STRING]; GetArg(Arg3,zLine,3);
 	char *pArg3 = strstr(zLine,Arg3);
-	
+
 	if (_stricmp(Arg1,"")==0)		ShowHelp = 1;
 	if (_stricmp(Arg1,"Help")==0)	ShowHelp = 1;
-	if (_stricmp(Arg1,"Status")==0)	ShowStat = 1; 
+	if (_stricmp(Arg1,"Status")==0)	ShowStat = 1;
 	if (_stricmp(Arg1,"Dump")==0)	DoRaidDump();
-	
-	if (_stricmp(Arg1,"Log")==0) 
+
+	if (_stricmp(Arg1,"Log")==0)
 	{
 		if (_stricmp(Arg2,"On")==0)		OK = SetLog(1);
 		if (_stricmp(Arg2,"Off")==0)		OK = SetLog(0);
@@ -438,7 +438,7 @@ void rtCommand(PSPAWNINFO pCHAR, PCHAR zLine)
 		if (!OK)						ShowStat = 1;
 	}
 	ShowHelpStatus(ShowHelp ,ShowStat);
-}		
+}
 
 void DoRaidDump(void)
 {
@@ -493,11 +493,11 @@ void GetRaidList(PSPAWNINFO pCHAR, int ShowList)
 				max++;
 			}
 	}
-	else 
+	else
 	{
 		PCHARINFO pChar=GetCharInfo();
 		memset(GroupList,0,sizeof(GroupList));
-		
+
 		for (unsigned long i=0; i<6; i++)
 		{
 			if (pChar->pGroupInfo && pChar->pGroupInfo->pMember[i])
@@ -507,10 +507,10 @@ void GetRaidList(PSPAWNINFO pCHAR, int ShowList)
 			}
 		}
 	}
-	
-	
+
+
 	qsort(RaidList,72, sizeof(trLIST), (int(*)(const void*,const void*)) cmpList);
-	
+
 	PDZMEMBER pDZList=(PDZMEMBER)pDZMember;
 	while(pDZList)
 	{
@@ -552,7 +552,7 @@ void GetRaidList(PSPAWNINFO pCHAR, int ShowList)
 	max += n;
 	n = 0;
 	qsort(RaidList,72, sizeof(trLIST), (int(*)(const void*,const void*)) cmpList);
-	
+
     PSPAWNINFO pSpawn=(PSPAWNINFO)pSpawnList;
     while(pSpawn)
     {
@@ -565,7 +565,7 @@ void GetRaidList(PSPAWNINFO pCHAR, int ShowList)
 		}
 		pSpawn=pSpawn->pNext;
     }
-	
+
 	if (ShowList)
 	{
 		WriteChatf("Raid Dz Task Zone Name ");
@@ -576,11 +576,11 @@ void GetRaidList(PSPAWNINFO pCHAR, int ShowList)
 }
 
 // Stub for /dzAddPlayer <>
-void rtDZAdd(PSPAWNINFO pCHAR, PCHAR zLine) 
+void rtDZAdd(PSPAWNINFO pCHAR, PCHAR zLine)
 {
 	int i;
-	char arg[MAX_STRING]; 
-	char cmd[MAX_STRING]; 
+	char arg[MAX_STRING];
+	char cmd[MAX_STRING];
 
 	if (strcmp((char*)instExpeditionLeader,pCHAR->Name)!=0)
 	{
@@ -613,11 +613,11 @@ void rtDZAdd(PSPAWNINFO pCHAR, PCHAR zLine)
 	}
 }
 
-void rtDZRemove(PSPAWNINFO pCHAR, PCHAR zLine) 
+void rtDZRemove(PSPAWNINFO pCHAR, PCHAR zLine)
 {
 	int i;
-	char arg[MAX_STRING]; 
-	char cmd[MAX_STRING]; 
+	char arg[MAX_STRING];
+	char cmd[MAX_STRING];
 
 	if (strcmp((char*)instExpeditionLeader,pCHAR->Name)!=0)
 	{
@@ -651,11 +651,11 @@ void rtDZRemove(PSPAWNINFO pCHAR, PCHAR zLine)
 	}
 }
 
-void rtTaskAdd(PSPAWNINFO pCHAR, PCHAR zLine) 
+void rtTaskAdd(PSPAWNINFO pCHAR, PCHAR zLine)
 {
 	int i;
-	char arg[MAX_STRING]; 
-	char cmd[MAX_STRING]; 
+	char arg[MAX_STRING];
+	char cmd[MAX_STRING];
 
 	GetRaidList(pCHAR,FALSE);
 
@@ -691,11 +691,11 @@ void rtTaskAdd(PSPAWNINFO pCHAR, PCHAR zLine)
 	}
 }
 
-void rtTaskRemove(PSPAWNINFO pCHAR, PCHAR zLine) 
+void rtTaskRemove(PSPAWNINFO pCHAR, PCHAR zLine)
 {
 	int i;
-	char arg[MAX_STRING]; 
-	char cmd[MAX_STRING]; 
+	char arg[MAX_STRING];
+	char cmd[MAX_STRING];
 
 	GetRaidList(pCHAR,FALSE);
 
@@ -732,7 +732,7 @@ void rtTaskRemove(PSPAWNINFO pCHAR, PCHAR zLine)
 	}
 }
 
-void rtShowMissing(PSPAWNINFO pCHAR, PCHAR zLine) 
+void rtShowMissing(PSPAWNINFO pCHAR, PCHAR zLine)
 {
 	int i;
 	GetRaidList(pCHAR,TRUE);
@@ -755,14 +755,14 @@ PLUGIN_API VOID OnPulse(VOID)
 	static char cmd[256];
 
 	LogTickCount++;
-	if (LogTickCount < LOGTICKCOUNT)	
+	if (LogTickCount < LOGTICKCOUNT)
 		return;
 
 	LogTickCount=0;
 	LogStartTime = time(NULL);
 	localtime_s(pTime,&LogStartTime);
 	// pTime->tm_wday (0=sun,1=mon,..) vs (3=sun,4=mon...
-	
+
 	t = (pTime->tm_wday + 3)*3600 + (pTime->tm_hour)*60 + (pTime->tm_min);
 	for (n=0; n<LogRaidTimes; n++)
 	{
@@ -788,7 +788,7 @@ PLUGIN_API DWORD OnIncomingChat(PCHAR Line, DWORD Color)
 
 	if (gGameState==GAMESTATE_INGAME)
 	{
-		if (GetTickCount() - LogSaveChannel > 60000 ) 
+		if (GetTickCount() - LogSaveChannel > 60000 )
 			LogSaveChannel = 0;
 
 		if (LogSaveChannel == 0) return NULL;
@@ -847,12 +847,12 @@ PLUGIN_API DWORD OnIncomingChat(PCHAR Line, DWORD Color)
 PLUGIN_API VOID InitializePlugin(VOID)
 {
 	DebugSpewAlways("Initializing MQ2RaidUtils");
-	
+
 	AddCommand("/raidtools",rtCommand);
 	AddCommand("/dzadd",rtDZAdd);
 	AddCommand("/dzRemove",rtDZRemove);
 	AddCommand("/dzShow",rtShowMissing);
-	
+
 	AddCommand("/taskAdd",rtTaskAdd);
 	AddCommand("/taskRemove",rtTaskRemove);
 	AddCommand("/taskShow",rtShowMissing);
@@ -875,9 +875,9 @@ PLUGIN_API VOID ShutdownPlugin(VOID)
 	RemoveCommand("/rtest");
 }
 
-PLUGIN_API VOID SetGameState(DWORD GameState) 
+PLUGIN_API VOID SetGameState(DWORD GameState)
 {
-	if(GameState==GAMESTATE_INGAME && IniLoaded==0) 
+	if(GameState==GAMESTATE_INGAME && IniLoaded==0)
 		LoadINIFile();
 }
 
@@ -907,5 +907,5 @@ int main(int argc,char **argv)
 	return 0;
 }
 
-	
+
 #endif
