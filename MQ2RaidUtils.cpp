@@ -60,15 +60,12 @@
 **
 ************************************************************************/
 
-#ifdef STUBIT
-#include "MQ2Stub.h"
-#define LOGTICKCOUNT  0
-#else
-#include "../MQ2Plugin.h"
-#define LOGTICKCOUNT  110
-#endif
+#include <mq/Plugin.h>
 
 PreSetup("MQ2RaidUtils");
+PLUGIN_VERSION(1.0);
+
+constexpr int LOGTICKCOUNT = 110;
 
 int    IniLoaded = 0;
 
@@ -144,7 +141,7 @@ void AddRaidTime(int startday,int starthr,int startmin,int stopday,int stophr,in
 	}
 }
 
-void ParseRaidTimeStr(void)
+void ParseRaidTimeStr()
 {
 	char argv[32];
 	char szTimes[256];
@@ -234,25 +231,21 @@ void ParseRaidTimeStr(void)
 	}
 }
 
-void BuildLogFileName(void)
+void BuildLogFileName()
 {
-	char   TempFileFormat[1024];
-	char  *pName = GetCharInfo()->Name;
-	char  *pServ = EQADDR_SERVERNAME;
+	char TempFileFormat[1024];
+	char* pName = GetCharInfo()->Name;
+	char* pServ = EQADDR_SERVERNAME;
 
-	#if defined(NEWCHARINFO)
-	char  *pGuild = GetGuildByID( GetCharInfo()->GuildID.GUID);
-	#else
-	char  *pGuild = GetGuildByID( GetCharInfo()->GuildID);
-	#endif
-	char  *pEQPath = gszEQPath;
-	char  *pMQPath = gszINIPath;
+	char* pGuildID = const_cast<char*>(GetGuildByID(GetCharInfo()->GuildID));
+	char* pEQPath = gPathEverQuest;
+	char* pMQPath = gPathConfig;
 
-	char  *p = LogFileFormat;
-	char  *q = TempFileFormat;
-	char  *s = NULL;
+	char* p = LogFileFormat;
+	char* q = TempFileFormat;
+	char* s = nullptr;
 
-	LogStartTime = time(NULL);
+	LogStartTime = time(nullptr);
 	localtime_s(pTime, &LogStartTime);
 
 	// First pass copy string and replace %S,%G,%C with EQ specific info
@@ -262,13 +255,13 @@ void BuildLogFileName(void)
 		{
 			switch (p[1])
 			{
-				case 'V':   p+=2; s = pServ;	break;
-				case 'G':	p+=2; s = pGuild;	break;
-				case 'C':	p+=2; s = pName;	break;
-				case 'P':   p+=2; s = pEQPath;	break;
-				case 'Q':	p+=2; s = pMQPath;	break;
-				case '%':   *q++ = *p++; 		// fall through to default
-			    default:	*q++ = *p++;		break;
+				case 'V':   p+=2; s = pServ;    break;
+				case 'G':   p+=2; s = pGuildID; break;
+				case 'C':   p+=2; s = pName;    break;
+				case 'P':   p+=2; s = pEQPath;  break;
+				case 'Q':   p+=2; s = pMQPath;  break;
+				case '%':   *q++ = *p++; // fall through to default
+			    default:    *q++ = *p++;        break;
 			}
 
 			while (s && *s) *q++ = *s++;
@@ -281,7 +274,7 @@ void BuildLogFileName(void)
 	*q++ = NULL;
 
 //	WriteChatf("LogFileName before strftime = [%s]\n",TempFileFormat);
-	strftime(LogFileName,1024,TempFileFormat,pTime);
+	strftime(LogFileName, 1024, TempFileFormat, pTime);
 //	WriteChatf("LogFileName after strftime = [%s]\n",LogFileName);
 }
 
@@ -467,7 +460,8 @@ void DoRaidDump(void)
 	LogSaveChannel = GetTickCount();
 
 	m = 0;
-	if(((PEVERQUEST)pEverQuest)->ChatService) m = ((PEVERQUEST)pEverQuest)->ChatService->ActiveChannels;
+	if(pEverQuest->ChatService)
+		m = pEverQuest->ChatService->ActiveChannels;
 
 	for (i=1; i<=m; i++)
 	{
@@ -498,12 +492,12 @@ void GetRaidList(PSPAWNINFO pCHAR, int ShowList)
 		PCHARINFO pChar=GetCharInfo();
 		memset(GroupList,0,sizeof(GroupList));
 
-		for (unsigned long i=0; i<6; i++)
+		for (int i = 0; i < MAX_GROUP_SIZE; i++)
 		{
-			if (pChar->pGroupInfo && pChar->pGroupInfo->pMember[i])
+			if (CGroupMember* pGroupMember = pLocalPC->Group->GetGroupMember(i))
 			{
-				GetCXStr(pChar->pGroupInfo->pMember[i]->pName,GroupList[i],MAX_STRING);
-				RaidList[i].Name = (char *)GroupList[i];
+				strcpy_s(GroupList[i], pGroupMember->GetName());
+				RaidList[i].Name = (char*)GroupList[i];
 			}
 		}
 	}
@@ -511,7 +505,7 @@ void GetRaidList(PSPAWNINFO pCHAR, int ShowList)
 
 	qsort(RaidList,72, sizeof(trLIST), (int(*)(const void*,const void*)) cmpList);
 
-	PDZMEMBER pDZList=(PDZMEMBER)pDZMember;
+	DynamicZonePlayerInfo* pDZList = pDZMember;
 	while(pDZList)
 	{
 		pKey->Name = pDZList->Name;
@@ -531,7 +525,7 @@ void GetRaidList(PSPAWNINFO pCHAR, int ShowList)
 	qsort(RaidList,72, sizeof(trLIST), (int(*)(const void*,const void*)) cmpList);
 
 	pTaskLeader = 0;
-	PTASKMEMBER pTaskList=(PTASKMEMBER)pTaskMember;
+	SharedTaskPlayerInfo* pTaskList = pTaskMember;
 	while(pTaskList)
 	{
 		pKey->Name = pTaskList->Name;
@@ -749,7 +743,7 @@ void rtShowMissing(PSPAWNINFO pCHAR, PCHAR zLine)
 
 
 // This is called every time MQ pulses
-PLUGIN_API VOID OnPulse(VOID)
+PLUGIN_API void OnPulse()
 {
 	int    n,t;
 	static char cmd[256];
@@ -775,7 +769,7 @@ PLUGIN_API VOID OnPulse(VOID)
 	}
 }
 
-PLUGIN_API DWORD OnIncomingChat(PCHAR Line, DWORD Color)
+PLUGIN_API bool OnIncomingChat(const char* Line, DWORD Color)
 {
 	static int flag = 0;
 	static int flag2 = 0;
@@ -844,7 +838,7 @@ PLUGIN_API DWORD OnIncomingChat(PCHAR Line, DWORD Color)
 
 
 // Called once, when the plugin is to initialize
-PLUGIN_API VOID InitializePlugin(VOID)
+PLUGIN_API void InitializePlugin()
 {
 	DebugSpewAlways("Initializing MQ2RaidUtils");
 
@@ -861,7 +855,7 @@ PLUGIN_API VOID InitializePlugin(VOID)
 		LoadINIFile();
 }
 
-PLUGIN_API VOID ShutdownPlugin(VOID)
+PLUGIN_API void ShutdownPlugin()
 {
 	DebugSpewAlways("Shutting down MQ2RaidUtils");
 
@@ -880,32 +874,3 @@ PLUGIN_API VOID SetGameState(DWORD GameState)
 	if(GameState==GAMESTATE_INGAME && IniLoaded==0)
 		LoadINIFile();
 }
-
-
-
-#ifdef STUBIT
-
-int main(int argc,char **argv)
-{
-	InitStub();
-	InitializePlugin();
-	SetGameState(GAMESTATE_INGAME);
-	rtCommand(pCHAR,"help");
-	rtCommand(pCHAR,"status");
-//	rtCommand(pCHAR,"log on");
-
-//	rtCommand(pCHAR,"log file %P\\RaidRoster-%Y%m%d-%H%M%S.txt");
-//	rtCommand(pCHAR,"log every 1");
-//	rtCommand(pCHAR,"log times fri 11am-2pm");
-//	ParseRaidTimeStr();
-//	OnPulse();
-//	rtDZAdd(pCHAR,"all");
-//	rtTaskAdd(pCHAR,"all");
-	rtShowMissing(pCHAR,"all");
-
-	ShutdownPlugin();
-	return 0;
-}
-
-
-#endif
