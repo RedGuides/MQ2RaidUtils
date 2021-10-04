@@ -39,11 +39,11 @@
 ** 1: The File name will be parsed using strftime the most common parameters are
 **		%a	Abbreviated weekday name
 **		%b	Abbreviated month name
-**		%d 	Day of month as decimal number (01 � 31)
-**		%H 	Hour in 24-hour format (00 � 23)
-**		%m 	Month as decimal number (01 � 12)
-**		%M 	Minute as decimal number (00 � 59)
-**		%S 	Seconds as decimal number (00 � 61)
+**		%d 	Day of month as decimal number (01  31)
+**		%H 	Hour in 24-hour format (00  23)
+**		%m 	Month as decimal number (01  12)
+**		%M 	Minute as decimal number (00  59)
+**		%S 	Seconds as decimal number (00  61)
 **		%Y 	Year with century, as decimal number
 **		%% 	Percent sign
 **    The name can also have the following
