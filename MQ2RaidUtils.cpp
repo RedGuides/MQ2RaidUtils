@@ -180,7 +180,7 @@ void ParseRaidTimeStr()
 		{
 			if (strncmp(p,tokenList[i],strlen(tokenList[i]))==0)
 			{
-				ln = strlen(tokenList[i]);
+				ln = (int)strlen(tokenList[i]);
 				t=i;
 			}
 		}
