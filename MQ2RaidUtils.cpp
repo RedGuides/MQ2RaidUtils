@@ -234,16 +234,16 @@ void ParseRaidTimeStr()
 void BuildLogFileName()
 {
 	char TempFileFormat[1024];
-	char* pName = GetCharInfo()->Name;
-	char* pServ = EQADDR_SERVERNAME;
+	char* pName = pLocalPC->Name;
+	const char* pServ = GetServerShortName();
 
-	char* pGuildID = const_cast<char*>(GetGuildByID(GetCharInfo()->GuildID));
+	char* pGuildID = const_cast<char*>(GetGuildByID(pLocalPC->GuildID));
 	char* pEQPath = gPathEverQuest;
 	char* pMQPath = gPathConfig;
 
 	char* p = LogFileFormat;
 	char* q = TempFileFormat;
-	char* s = nullptr;
+	const char* s = nullptr;
 
 	LogStartTime = time(nullptr);
 	localtime_s(pTime, &LogStartTime);
