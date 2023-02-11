@@ -442,7 +442,7 @@ void DoRaidDump(void)
 	BuildLogFileName();
 	WriteChatf("RaidTools:: Taking raid attendance: %s",LogFileName);
 	EzCommand("/popup Taking raid attendance");
-	fopen_s(&fp,LogFileName,"a");
+	fp = _fsopen(LogFileName, "a", _SH_DENYWR);
 	if (!fp)
 	{
 		WriteChatf("Failed to open %s , aborting log.",LogFileName);
@@ -793,7 +793,7 @@ PLUGIN_API bool OnIncomingChat(const char* Line, DWORD Color)
 		{
 //			WriteChatf("[RT] (%s)",Line);
 
-			fopen_s(&fp,LogFileName,"a");
+			fp = _fsopen(LogFileName, "a", _SH_DENYWR);
 			if (fp)
 			{
 				if (flag2==0)	fprintf(fp,"\n");
@@ -817,7 +817,7 @@ PLUGIN_API bool OnIncomingChat(const char* Line, DWORD Color)
 
 //			WriteChatf("[RT] (%s)",Line);
 
-			fopen_s(&fp,LogFileName,"a");
+			fp = _fsopen(LogFileName, "a", _SH_DENYWR);
 			if (fp)
 			{
 				if (Line[0]!=' ') fprintf(fp,"\n");
