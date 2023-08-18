@@ -494,7 +494,7 @@ void GetRaidList(PSPAWNINFO pCHAR, int ShowList)
 
 		for (int i = 0; i < MAX_GROUP_SIZE; i++)
 		{
-			if (CGroupMember* pGroupMember = pLocalPC->Group->GetGroupMember(i))
+			if (CGroupMember* pGroupMember = pLocalPC->GetGroupMember(i))
 			{
 				strcpy_s(GroupList[i], pGroupMember->GetName());
 				RaidList[i].Name = (char*)GroupList[i];
