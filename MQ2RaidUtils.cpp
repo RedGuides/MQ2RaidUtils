@@ -123,8 +123,8 @@ int cmpList (const void * a, const void * b)
 static char OnStr[] = "On";
 static char OffStr[] = "Off";
 
-//                            0    1     2     3      4     5    6      7    8     9    10  11  12   13   14
-static char *tokenList[] = { " ","am", "pm" , "sun","mon","tue","wed","thu","fri","sat","+","-","|",",", NULL};
+//                                 0    1     2     3      4     5    6      7    8     9    10  11  12   13   14
+static const char *tokenList[] = { " ","am", "pm" , "sun","mon","tue","wed","thu","fri","sat","+","-","|",",", nullptr};
 
 void AddRaidTime(int startday,int starthr,int startmin,int stopday,int stophr,int stopmin)
 {
