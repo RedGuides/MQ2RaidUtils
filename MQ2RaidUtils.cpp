@@ -453,7 +453,7 @@ void DoRaidDump(void)
 			if (pRaid->RaidMemberUsed[m])
 			{
 				p = &pRaid->RaidMember[m];
-				fprintf(fp,"%d\t%s\t%d\t%s\t%s\n",p->GroupNumber,p->Name,p->nLevel,ClassInfo[p->nClass].Name,p->RaidNote);
+				fprintf(fp,"%d\t%s\t%d\t%s\t%s\n",p->GroupNumber,p->Name,p->nLevel,pEverQuest->GetClassDesc(p->nClass),p->RaidNote);
 			}
 	fprintf(fp,"------------------------\n");
 	fclose(fp);
